@@ -7,9 +7,7 @@ langchain-community>=0.0.10
 python-magic-bin>=0.4.14; sys_platform == 'win32'
 python-magic>=0.4.24; sys_platform != 'win32'
 pypdf>=3.0.0
-unstructured>=0.10.0
-unstructured[pdf]
-unstructured[docx]
-unstructured[pptx]
-unstructured[xlsx]
+python-pptx>=0.6.21  # For PPTX files
+openpyxl>=3.0.10     # For XLSX files
+docx2python>=2.0.0   # For DOCX files
 pinecone>=7.3.0,<8.0.0

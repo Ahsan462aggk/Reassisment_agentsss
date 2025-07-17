@@ -5,20 +5,19 @@ import tempfile
 import io
 import logging
 from datetime import datetime
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Union
 from pathlib import Path
+import pypdf
+import docx2python
+from pptx import Presentation
+from openpyxl import load_workbook
 
 # Handle magic import for Windows vs other OS
 if sys.platform == 'win32':
     import magic  # This will use python-magic-bin on Windows
 else:
     import magic  # This will use python-magic on other platforms
-from langchain_community.document_loaders import (
-    PyPDFLoader,
-    UnstructuredWordDocumentLoader,
-    UnstructuredExcelLoader,
-    UnstructuredPowerPointLoader
-)
+
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.schema import Document
 
@@ -50,9 +49,9 @@ def save_upload_file(upload_file, suffix: str = "") -> str:
         with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
             tmp.write(upload_file.file.read())
             return tmp.name
-    except Exception as e:
+    except Exception as e:   
         logger.error(f"Error saving uploaded file: {str(e)}")
-        raise
+        raise 
 
 def load_document(file_path: str) -> List[Document]:
     """Load document using appropriate loader based on file type."""
@@ -68,25 +67,45 @@ def load_document(file_path: str) -> List[Document]:
         logger.info(f"Loading document with extension: {file_ext}")
         
         if file_ext == '.pdf':
-            loader = PyPDFLoader(file_path)
-        elif file_ext in ['.docx', '.doc']:
-            loader = UnstructuredWordDocumentLoader(file_path)
-        elif file_ext in ['.pptx', '.ppt']:
-            loader = UnstructuredPowerPointLoader(file_path)
-        elif file_ext in ['.xlsx', '.xls']:
-            loader = UnstructuredExcelLoader(file_path)
-        else:
-            raise ValueError(f"No loader available for file type: {file_ext}")
-        
-        documents = loader.load()
-        if not documents or not any(doc.page_content.strip() for doc in documents):
-            raise ValueError("No readable content found in the document")
+            # Load PDF using pypdf
+            reader = pypdf.PdfReader(file_path)
+            text = "\n\n".join([page.extract_text() for page in reader.pages if page.extract_text()])
+            return [Document(page_content=text, metadata={"source": file_path})]
             
-        return documents
-        
+        elif file_ext in ['.docx', '.doc']:
+            # Load DOCX using docx2python
+            doc = docx2python.docx2python(file_path)
+            text = doc.text
+            return [Document(page_content=text, metadata={"source": file_path})]
+            
+        elif file_ext in ['.pptx', '.ppt']:
+            # Load PPTX using python-pptx
+            prs = Presentation(file_path)
+            text = ""
+            for slide in prs.slides:
+                for shape in slide.shapes:
+                    if hasattr(shape, "text"):
+                        text += shape.text + "\n"
+            return [Document(page_content=text, metadata={"source": file_path})]
+            
+        elif file_ext in ['.xlsx', '.xls']:
+            # Load XLSX using openpyxl
+            wb = load_workbook(file_path, read_only=True, data_only=True)
+            text = ""
+            for sheet_name in wb.sheetnames:
+                sheet = wb[sheet_name]
+                for row in sheet.iter_rows(values_only=True):
+                    text += " ".join(str(cell) for cell in row if cell is not None) + "\n"
+            return [Document(page_content=text, metadata={"source": file_path})]
+            
+        else:
+            # For .txt files or any other text files
+            with open(file_path, 'r', encoding='utf-8') as f:
+                text = f.read()
+            return [Document(page_content=text, metadata={"source": file_path})]
+            
     except Exception as e:
         logger.error(f"Error loading document {os.path.basename(file_path)}: {str(e)}", exc_info=True)
-        raise
         raise
 
 def chunk_documents(documents: List[Document], 
@@ -176,11 +195,16 @@ def generate_slide_id() -> str:
 
 def extract_text_from_pdf(file_content: bytes) -> str:
     """Legacy function for backward compatibility."""
-    from PyPDF2 import PdfReader
-    import io
-    
-    pdf_reader = PdfReader(io.BytesIO(file_content))
-    text = ""
-    for page in pdf_reader.pages:
-        text += page.extract_text() + "\n"
-    return text
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+            tmp.write(file_content)
+            tmp_path = tmp.name
+        
+        pdf_reader = PyPDF2.PdfReader(tmp_path)
+        text = ""
+        for page in pdf_reader.pages:
+            text += page.extract_text() + "\n"
+        return text
+    finally:
+        if os.path.exists(tmp_path):
+            os.unlink(tmp_path)
