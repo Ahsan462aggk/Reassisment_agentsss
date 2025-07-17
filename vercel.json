@@ -1,23 +1,16 @@
 {
-    "version": 2,
-    "buildCommand": "pip install -r src/app/requirements.txt --target .vercel/python/packages",
-    "builds": [
-      {
-        "src": "src/app/main.py",
-        "use": "@vercel/python"
-      }
-    ],
-    "routes": [
-      {
-        "src": "/(.*)",
-        "dest": "src/app/main.py"
-      }
-    ],
-    "functions": {
-      "src/app/main.py": {
-        "maxDuration": 10,
-        "memory": 1024,
-        "excludeFiles": "**/tests/**,**/__pycache__/**,**/.pytest_cache/**,**/*.md,**/*.txt,**/*.log,**/venv/**,**/env/**,**/.env*,**/.git/**,**/.github/**,**/.vscode/**,**/*.pyc,**/*.pyo,**/*.pyd,**/*.so"
-      }
+  "version": 2,
+  "buildCommand": "pip install -r requirements.txt",
+  "builds": [
+    {
+      "src": "src/app/main.py",
+      "use": "@vercel/python"
     }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "src/app/main.py"
+    }
+  ]
 }
