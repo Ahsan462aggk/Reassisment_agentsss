@@ -1,0 +1,97 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+.nox/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Git
+.git/
+.gitignore
+
+# Local development
+.venv
+
+# Project specific
+uploads/
+tests/
+*.log
+
+# Large files
+*.pdf
+*.docx
+*.xlsx
+*.csv
+*.parquet
+*.zip
+*.tar.gz
+*.tar
+*.tgz
+*.gz
+*.bzip2
+*.7z
+*.rar
+
+# Media files
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.mp4
+*.mp3
+*.wav
+*.mov
+*.avi
+*.flv
+*.wmv
+*.m4v
+*.webm
+*.ogg
+*.ogv
+*.3gp
+*.3g2
+*.m4a
+*.m4p
+*.m4b
+*.m4r
+*.m4v
