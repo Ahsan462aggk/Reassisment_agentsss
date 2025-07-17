@@ -17,24 +17,7 @@
       "src/app/main.py": {
         "maxDuration": 10,
         "memory": 1024,
-        "excludeFiles": [
-          "**/tests/**",
-          "**/__pycache__/**",
-          "**/.pytest_cache/**",
-          "**/*.md",
-          "**/*.txt",
-          "**/*.log",
-          "**/venv/**",
-          "**/env/**",
-          "**/.env*",
-          "**/.git/**",
-          "**/.github/**",
-          "**/.vscode/**",
-          "**/*.pyc",
-          "**/*.pyo",
-          "**/*.pyd",
-          "**/*.so"
-        ]
+        "excludeFiles": "**/tests/**,**/__pycache__/**,**/.pytest_cache/**,**/*.md,**/*.txt,**/*.log,**/venv/**,**/env/**,**/.env*,**/.git/**,**/.github/**,**/.vscode/**,**/*.pyc,**/*.pyo,**/*.pyd,**/*.so"
       }
     }
 }
